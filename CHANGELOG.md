@@ -1,3 +1,7 @@
+## [1.0.3] - Added support for Creation W/ Upload
+
+* Added an optional `uploadDataDuringCreation` options (see [TUS documentation](https://tus.io/protocols/resumable-upload#creation-with-upload))
+
 ## [1.0.2] - Fixed issue with not parsing the http port number 
 
 * Fixed issue with not parsing the http port number 
