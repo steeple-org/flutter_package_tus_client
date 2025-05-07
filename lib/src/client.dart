@@ -20,6 +20,10 @@ class TusClient {
   /// Storage used to save and retrieve upload URLs by its fingerprint.
   final TusStore? store;
 
+  /// Whether to upload the file data during creation
+  /// (see [create] method)
+  final bool uploadDataDuringCreation;
+
   final XFile file;
 
   final Map<String, String>? metadata;
@@ -51,6 +55,7 @@ class TusClient {
     this.headers,
     this.metadata = const {},
     this.maxChunkSize = 512 * 1024,
+    this.uploadDataDuringCreation = false,
   }) {
     _fingerprint = generateFingerprint() ?? "";
     _uploadMetadata = generateMetadata();
@@ -83,7 +88,21 @@ class TusClient {
         "Upload-Length": "$_fileSize",
       });
 
-    final response = await client.post(url, headers: createHeaders);
+    Uint8List? initialChunk;
+
+    if (uploadDataDuringCreation) {
+      createHeaders.addAll({
+        "Content-Type": "application/offset+octet-stream",
+        "Upload-Offset": "0",
+      });
+      initialChunk = await _getData();
+    }
+
+    final response = await client.post(
+      url,
+      headers: createHeaders,
+      body: initialChunk,
+    );
     if (!(response.statusCode >= 200 && response.statusCode < 300) &&
         response.statusCode != 404) {
       throw ProtocolException(
