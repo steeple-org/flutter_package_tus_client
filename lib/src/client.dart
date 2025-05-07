@@ -91,12 +91,13 @@ class TusClient {
     Uint8List? initialChunk;
 
     if (uploadDataDuringCreation) {
-      createHeaders["Content-Type"] = "application/offset+octet-stream";
-      createHeaders["Upload-Offset"] = "0";
-
+      createHeaders.addAll({
+        "Content-Type": "application/offset+octet-stream",
+        "Upload-Offset": "0",
+      });
       initialChunk = await _getData();
     }
-  
+
     final response = await client.post(
       url,
       headers: createHeaders,
